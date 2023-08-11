@@ -1,11 +1,23 @@
 package com.example.sbcamelkafka;
 
 
+import org.apache.camel.Exchange;
+import org.apache.camel.Processor;
 import org.apache.camel.builder.RouteBuilder;
+import org.apache.camel.component.quartz.QuartzMessage;
+import org.quartz.JobExecutionContext;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.util.Calendar;
+import java.util.Date;
 
 @Component
 public class CopsSchedulerRoute extends RouteBuilder {
+
+
+    @Autowired
+    TimeWindowProcessor processor;
 
     @Override
     public void configure() throws Exception {
@@ -41,6 +53,7 @@ public class CopsSchedulerRoute extends RouteBuilder {
          * using the Kubernetes pod Scheduler .
          */
         from("quartz://timerName?cron={{expression}}")
+                .process(processor)
                 .routeId("freshFlightReportGeneration")
                 .log("Starting a fresh report generation .")
                 .to("direct:startReportGeneration");
@@ -51,6 +64,8 @@ public class CopsSchedulerRoute extends RouteBuilder {
          */
         from("direct:startReportGeneration")
                 .routeId("startReportGeneration")
+                .log("Time window From        -  ${headers.windowStart} To -  ${headers.windowEnd} ")
+                .log("Backup Time window From -  ${headers.backupWindowStart} To -  ${headers.backupWindowEnd} ")
                 .log("Fetch Information from  Navitaire .")
                 .to("http://{{flight.data.api.host}}:{{flight.data.api.port}}/{{flight.data.api.path}}?bridgeEndpoint=true")
                 .log("Sending data to Kafka Topic")
