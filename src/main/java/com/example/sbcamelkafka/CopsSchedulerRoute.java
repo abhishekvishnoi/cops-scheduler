@@ -57,6 +57,9 @@ public class CopsSchedulerRoute extends RouteBuilder {
                 .process(processor)
                 .routeId("freshFlightReportGeneration")
                 .log("Starting a fresh report generation .")
+                .log("Date                    -  ${headers.Flt_Dt}")
+                .log("Time window From        -  ${headers.fromTime} To -  ${headers.toTime} ")
+                .log("Backup Time window From -  ${headers.backupfromTime} To -  ${headers.backuptoTime} ")
                 .to("direct:startReportGeneration");
 
         /**
@@ -65,14 +68,11 @@ public class CopsSchedulerRoute extends RouteBuilder {
          */
         from("direct:startReportGeneration")
                 .routeId("startReportGeneration")
-                .log("Date                    -  ${headers.flightDate}")
-                .log("Time window From        -  ${headers.windowStart} To -  ${headers.windowEnd} ")
-                .log("Backup Time window From -  ${headers.backupWindowStart} To -  ${headers.backupWindowEnd} ")
                 .log("Fetch Information from  Navitaire .")
                 .log("http://{{flight.data.api.host}}:{{flight.data.api.port}}/{{flight.data.api.path}}?" +
-                        "bridgeEndpoint=true&Flt_Dt=${headers.flightDate}&fromTime=${headers.windowStart}&toTime=${headers.windowEnd}")
+                        "bridgeEndpoint=true&Flt_Dt=${headers.Flt_Dt}&fromTime=${headers.fromTime}&toTime=${headers.toTime}")
                 .to("http://{{flight.data.api.host}}:{{flight.data.api.port}}/{{flight.data.api.path}}?" +
-                        "bridgeEndpoint=true&Flt_Dt=${headers.flightDate}&fromTime=${headers.windowStart}&toTime=${headers.windowEnd}")
+                        "bridgeEndpoint=true&Flt_Dt=${headers.Flt_Dt}&fromTime=${headers.fromTime}&toTime=${headers.toTime}")
                 .log("Sending data to Kafka Topic")
                 .to("kafka:{{topic}}?brokers={{broker}}");
 

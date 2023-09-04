@@ -29,16 +29,15 @@ public class TimeWindowProcessor implements Processor {
             String pattern = "yyyy-mm-hh HH:MM";
             SimpleDateFormat simpleDateFormat = new SimpleDateFormat(pattern);
             String date = simpleDateFormat.format(new Date());
-          //  System.out.println(date);
 
             String datepattern = "yyyy-mm-hh";
             SimpleDateFormat sdfDate = new SimpleDateFormat(datepattern);
 
-            exchange.getIn().setHeader("flightDate" , sdfDate.format(after6hours));
-            exchange.getIn().setHeader("windowStart" , simpleDateFormat.format(after6hours));
-            exchange.getIn().setHeader("windowEnd" , simpleDateFormat.format(after10hours));
-            exchange.getIn().setHeader("backupWindowStart" , simpleDateFormat.format(after10hours));
-            exchange.getIn().setHeader("backupWindowEnd" , simpleDateFormat.format(after14hours));
+            exchange.getIn().setHeader("Flt_Dt" , sdfDate.format(after6hours));
+            exchange.getIn().setHeader("fromTime" , simpleDateFormat.format(after6hours));
+            exchange.getIn().setHeader("toTime" , simpleDateFormat.format(after10hours));
+            exchange.getIn().setHeader("backupfromTime" , simpleDateFormat.format(after10hours));
+            exchange.getIn().setHeader("backuptoTime" , simpleDateFormat.format(after14hours));
 
         }
 
