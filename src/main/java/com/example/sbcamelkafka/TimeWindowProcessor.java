@@ -6,6 +6,7 @@ import org.apache.camel.component.quartz.QuartzMessage;
 import org.quartz.JobExecutionContext;
 import org.springframework.stereotype.Component;
 
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -24,10 +25,20 @@ public class TimeWindowProcessor implements Processor {
             Date after10hours = timeAfter(10 , sft);
             Date after14hours = timeAfter(14 , sft);
 
-            exchange.getIn().setHeader("windowStart" , after6hours);
-            exchange.getIn().setHeader("windowEnd" , after10hours);
-            exchange.getIn().setHeader("backupWindowStart" , after10hours);
-            exchange.getIn().setHeader("backupWindowEnd" , after14hours);
+
+            String pattern = "yyyy-mm-hh HH:MM";
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat(pattern);
+            String date = simpleDateFormat.format(new Date());
+          //  System.out.println(date);
+
+            String datepattern = "yyyy-mm-hh";
+            SimpleDateFormat sdfDate = new SimpleDateFormat(datepattern);
+
+            exchange.getIn().setHeader("flightDate" , sdfDate.format(after6hours));
+            exchange.getIn().setHeader("windowStart" , simpleDateFormat.format(after6hours));
+            exchange.getIn().setHeader("windowEnd" , simpleDateFormat.format(after10hours));
+            exchange.getIn().setHeader("backupWindowStart" , simpleDateFormat.format(after10hours));
+            exchange.getIn().setHeader("backupWindowEnd" , simpleDateFormat.format(after14hours));
 
         }
 

@@ -2,6 +2,7 @@ package com.example.sbcamelkafka;
 
 
 import org.apache.camel.Exchange;
+import org.apache.camel.LoggingLevel;
 import org.apache.camel.Processor;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.quartz.QuartzMessage;
@@ -64,10 +65,14 @@ public class CopsSchedulerRoute extends RouteBuilder {
          */
         from("direct:startReportGeneration")
                 .routeId("startReportGeneration")
+                .log("Date                    -  ${headers.flightDate}")
                 .log("Time window From        -  ${headers.windowStart} To -  ${headers.windowEnd} ")
                 .log("Backup Time window From -  ${headers.backupWindowStart} To -  ${headers.backupWindowEnd} ")
                 .log("Fetch Information from  Navitaire .")
-                .to("http://{{flight.data.api.host}}:{{flight.data.api.port}}/{{flight.data.api.path}}?bridgeEndpoint=true")
+                .log("http://{{flight.data.api.host}}:{{flight.data.api.port}}/{{flight.data.api.path}}?" +
+                        "bridgeEndpoint=true&Flt_Dt=${headers.flightDate}&fromTime=${headers.windowStart}&toTime=${headers.windowEnd}")
+                .to("http://{{flight.data.api.host}}:{{flight.data.api.port}}/{{flight.data.api.path}}?" +
+                        "bridgeEndpoint=true&Flt_Dt=${headers.flightDate}&fromTime=${headers.windowStart}&toTime=${headers.windowEnd}")
                 .log("Sending data to Kafka Topic")
                 .to("kafka:{{topic}}?brokers={{broker}}");
 
