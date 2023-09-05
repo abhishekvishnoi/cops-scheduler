@@ -46,18 +46,18 @@ components:
       size: 1G
 commands:
   - exec:
-      commandLine: JAVA_HOME=$JAVA_HOME_8 mvn clean install
+      commandLine: JAVA_HOME=$JAVA_HOME_17 mvn clean install
       component: tools
       workingDir: ${PROJECT_SOURCE}
     id: build-project
   - exec:
-      commandLine: JAVA_HOME=$JAVA_HOME_8 mvn spring-boot:run -DskipTests
+      commandLine: JAVA_HOME=$JAVA_HOME_17 mvn spring-boot:run -DskipTests
       component: tools
       workingDir: ${PROJECT_SOURCE}
     id: run-services
   - exec:
       commandLine: |
-        JAVA_HOME=$JAVA_HOME_8 mvn spring-boot:run -DskipTests \
+        JAVA_HOME=$JAVA_HOME_17 mvn spring-boot:run -DskipTests \
         -Drun.jvmArguments="-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5005"
       component: tools
       workingDir: ${PROJECT_SOURCE}
