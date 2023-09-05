@@ -1,0 +1,92 @@
+apiVersion: workspace.devfile.io/v1alpha2
+metadata:
+  annotations:
+    che.eclipse.org/che-editor: che-incubator/che-code/latest
+    che.eclipse.org/devfile-source: |
+      factory:
+        params: >-
+          devWorkspace=https://eclipse-che.github.io/che-devfile-registry/7.67.0/devfiles/apache-camel-springboot/devworkspace-che-code-latest.yaml&storageType=per-user&url=https://github.com/che-samples/fuse-rest-http-booster/tree/main
+    che.eclipse.org/last-updated-timestamp: '2023-09-05T05:18:50.622Z'
+    controller.devfile.io/started-at: '1693891145817'
+  creationTimestamp: '2023-09-05T04:54:16Z'
+  finalizers:
+    - storage.controller.devfile.io
+    - rbac.controller.devfile.io
+  generation: 7
+  labels:
+    controller.devfile.io/creator: 4735808c-b014-4bce-ab71-87b3767ca228
+  name: cops-scheduler
+  namespace: abvishno-dev
+kind: DevWorkspace
+spec:
+  contributions:
+    - kubernetes:
+        name: che-code-apache-camel-springboot
+      name: editor
+  routingClass: che
+  started: true
+  template:
+    attributes:
+      controller.devfile.io/devworkspace-config:
+        name: devworkspace-config
+        namespace: crw
+      controller.devfile.io/scc: container-build
+      controller.devfile.io/storage-type: per-user
+    projects:
+      - name: fuse-rest-http-booster
+        zip:
+          location: https://eclipse-che.github.io/che-devfile-registry/7.67.0/resources/v2/fuse-rest-http-booster.zip
+    components:
+      - attributes:
+          controller.devfile.io/merge-contribution: true
+        container:
+          endpoints:
+            - exposure: none
+              name: debug
+              protocol: tcp
+              targetPort: 5005
+            - exposure: public
+              name: 8080-tcp
+              protocol: http
+              targetPort: 8080
+          env:
+            - name: CHE_DASHBOARD_URL
+              value: https://devspaces.apps.sandbox-m3.1530.p1.openshiftapps.com
+            - name: CHE_PLUGIN_REGISTRY_URL
+              value: https://devspaces.apps.sandbox-m3.1530.p1.openshiftapps.com/plugin-registry/v3
+            - name: CHE_PLUGIN_REGISTRY_INTERNAL_URL
+              value: http://plugin-registry.crw.svc:8080/v3
+            - name: CLUSTER_CONSOLE_URL
+              value: https://console-openshift-console.apps.sandbox-m3.1530.p1.openshiftapps.com
+            - name: CLUSTER_CONSOLE_TITLE
+              value: OpenShift console
+            - name: OPENVSX_REGISTRY_URL
+              value: https://open-vsx.org
+          image: quay.io/devfile/universal-developer-image:ubi8-latest
+          memoryLimit: 3Gi
+          sourceMapping: /projects
+          volumeMounts:
+            - name: m2
+              path: /home/user/.m2
+        name: tools
+      - name: m2
+        volume:
+          size: 1G
+    commands:
+      - exec:
+          commandLine: JAVA_HOME=$JAVA_HOME_8 mvn clean install
+          component: tools
+          workingDir: ${PROJECT_SOURCE}
+        id: build-project
+      - exec:
+          commandLine: JAVA_HOME=$JAVA_HOME_8 mvn spring-boot:run -DskipTests
+          component: tools
+          workingDir: ${PROJECT_SOURCE}
+        id: run-services
+      - exec:
+          commandLine: |
+            JAVA_HOME=$JAVA_HOME_8 mvn spring-boot:run -DskipTests \
+            -Drun.jvmArguments="-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5005"
+          component: tools
+          workingDir: ${PROJECT_SOURCE}
+        id: debug-services
